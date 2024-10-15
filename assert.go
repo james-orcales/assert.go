@@ -27,7 +27,7 @@ func Assert(cond bool) {
 // Nil crashes if x is NOT nil. Prefer this over [Assert](x == nil) for readability.
 func Nil(x any) {
 	if x != nil {
-		println(x)
+		fmt.Printf("%v\n", x)
 		fatalStackTrace()
 	}
 }
@@ -44,7 +44,7 @@ func ErrIs(actual error, targets ...error) {
 			confirmed = true
 		}
 	}
-	println(actual)
+	fmt.Printf("%v\n", actual)
 	fatalStackTrace()
 	return
 }
@@ -56,7 +56,7 @@ func ErrIsNot(actual error, targets ...error) {
 
 	for _, t := range targets {
 		if errors.Is(actual, t) {
-			println(actual)
+			fmt.Printf("%v\n", actual)
 			fatalStackTrace()
 		}
 	}
@@ -76,7 +76,7 @@ func XAssert(fn func() bool) {
 func XNil(fn func() any) {
 	x := fn()
 	if x != nil {
-		println(x)
+		fmt.Printf("%v\n", x)
 		fatalStackTrace()
 	}
 }
@@ -90,7 +90,7 @@ func XErrIs(fn func() error, targets ...error) {
 			return
 		}
 	}
-	println(actual)
+	fmt.Printf("%v\n", actual)
 	fatalStackTrace()
 	return
 }
@@ -101,7 +101,7 @@ func XErrIsNot(fn func() error, targets ...error) {
 	actual := fn()
 	for _, t := range targets {
 		if errors.Is(actual, t) {
-			println(actual)
+			fmt.Printf("%v\n", actual)
 			fatalStackTrace()
 		}
 	}
