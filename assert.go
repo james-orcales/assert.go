@@ -108,7 +108,7 @@ func XErrIsNot(fn func() error, targets ...error) {
 }
 
 func fatalStackTrace() {
-	callers := make([]uintptr, 0, 50)
+	callers := make([]uintptr, 50)
 
 	// Stacktrace starts at the caller of this function
 	const callerOfThisFunc = 3
