@@ -17,10 +17,51 @@ import (
 	"strings"
 )
 
+// Unreachable crashes the program when evaluated with an exit code of 1 and writes a stacktrace.
+func Unreachable() {
+	callers := make([]uintptr, 50)
+
+	// Stacktrace starts at the caller of this function
+	const callerOfThisFunc = 2
+
+	count := runtime.Callers(callerOfThisFunc, callers)
+	frames := runtime.CallersFrames(callers[0:count])
+
+	for {
+		frame, ok := frames.Next()
+		if !ok {
+			break
+		}
+
+		fn := frame.Function
+		if frame.File != "" && frame.Line > 0 {
+			f, err := os.Open(frame.File)
+			if err == nil {
+				defer f.Close()
+
+				sc := bufio.NewScanner(f)
+
+				for range frame.Line {
+					_ = sc.Scan()
+				}
+				fn = strings.TrimSpace(sc.Text())
+			}
+		}
+
+		fmt.Printf(
+			"%v:%v\n\t%v\n\n",
+			frame.File,
+			frame.Line,
+			fn,
+		)
+	}
+	os.Exit(1)
+}
+
 // Assert crashes if cond is false. If you need Assert(item == nil), use [Nil](item) instead.
 func Assert(cond bool) {
 	if !cond {
-		fatalStackTrace()
+		Unreachable() // assertion failure
 	}
 }
 
@@ -28,7 +69,7 @@ func Assert(cond bool) {
 func Nil(x any) {
 	if x != nil {
 		fmt.Printf("%v\n", x)
-		fatalStackTrace()
+		Unreachable() // assertion failure
 	}
 }
 
@@ -45,8 +86,7 @@ func ErrIs(actual error, targets ...error) {
 		}
 	}
 	fmt.Printf("%v\n", actual)
-	fatalStackTrace()
-	return
+	Unreachable() // assertion failure
 }
 
 // ErrIsNot crashes if actual is one of the specified targets.
@@ -57,7 +97,7 @@ func ErrIsNot(actual error, targets ...error) {
 	for _, t := range targets {
 		if errors.Is(actual, t) {
 			fmt.Printf("%v\n", actual)
-			fatalStackTrace()
+			Unreachable() // assertion failure
 		}
 	}
 }
@@ -69,7 +109,7 @@ in production builds using the `removeasserts` build tag.
 */
 func XAssert(fn func() bool) {
 	if !fn() {
-		fatalStackTrace()
+		Unreachable() // assertion failure
 	}
 }
 
@@ -77,7 +117,7 @@ func XNil(fn func() any) {
 	x := fn()
 	if x != nil {
 		fmt.Printf("%v\n", x)
-		fatalStackTrace()
+		Unreachable() // assertion failure
 	}
 }
 
@@ -91,8 +131,7 @@ func XErrIs(fn func() error, targets ...error) {
 		}
 	}
 	fmt.Printf("%v\n", actual)
-	fatalStackTrace()
-	return
+	Unreachable() // assertion failure
 }
 
 func XErrIsNot(fn func() error, targets ...error) {
@@ -102,41 +141,7 @@ func XErrIsNot(fn func() error, targets ...error) {
 	for _, t := range targets {
 		if errors.Is(actual, t) {
 			fmt.Printf("%v\n", actual)
-			fatalStackTrace()
+			Unreachable() // assertion failure
 		}
 	}
-}
-
-func fatalStackTrace() {
-	callers := make([]uintptr, 50)
-
-	// Stacktrace starts at the caller of this function
-	const callerOfThisFunc = 3
-
-	count := runtime.Callers(callerOfThisFunc, callers)
-	frames := runtime.CallersFrames(callers[0:count])
-
-	for {
-		frame, ok := frames.Next()
-		if !ok {
-			break
-		}
-
-		fn := frame.Function
-		if frame.File != "" && frame.Line > 0 {
-			f, err := os.Open(frame.File)
-			Nil(err)
-			defer f.Close()
-
-			sc := bufio.NewScanner(f)
-
-			for range frame.Line {
-				_ = sc.Scan()
-			}
-			fn = strings.TrimSpace(sc.Text())
-		}
-
-		fmt.Printf("%v:%v\n\t%v\n\n", frame.File, frame.Line, fn)
-	}
-	os.Exit(1)
 }

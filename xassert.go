@@ -10,4 +10,4 @@ func XAssert(_ func() bool)                {}
 func XNil(_ func() any)                    {}
 func XErrIs(_ func() error, _ ...error)    {}
 func XErrIsNot(_ func() error, _ ...error) {}
-func fatalStackTrace()                     {}
+func Unreachable()                               {}
