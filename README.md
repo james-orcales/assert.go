@@ -4,11 +4,11 @@ package main
 import (
 	"errors"
 
-	"github.com/amesaine/assert.go"
+	. "github.com/amesaine/assert.go"
 )
 
 func main() {
-	assert.Assert('a' < 'b')
+	Assert('a' < 'b')
 	foo()
 }
 
@@ -18,7 +18,7 @@ func foo() {
 
 func bar() {
 	err := baz()
-	assert.Nil(err)
+	AssertNil(err)
 }
 
 func baz() error {
@@ -28,7 +28,7 @@ func baz() error {
 /*
 where am i?
 /home/amesaine/personal/git/scratch/go/main.go:20
-	assert.Nil(err)
+	AssertNil(err)
 
 /home/amesaine/personal/git/scratch/go/main.go:15
 	bar()

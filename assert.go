@@ -1,9 +1,9 @@
 //go:build !removeasserts
 
 /*
-Package assert provides condition evaluation utilities that terminate the program
-using os.Exit(1), preventing panic recovery, along with Zig-style stacktrace output.
-Assertions can be disabled with the `removeasserts` build tag.
+Package assert provides condition evaluation utilities that terminate the program using os.Exit(1),
+preventing panic recovery, along with Zig-style stacktrace output. Assertions can be disabled with
+the `removeasserts` build tag. Dot import is the intended import style for this package.
 */
 
 package assert
@@ -78,6 +78,7 @@ func Assert(cond bool) {
 
 // Nil crashes if x is NOT nil. Prefer this over [Assert](x == nil) for readability.
 func Nil(x any) {
+func AssertNil(x any) {
 	if x != nil {
 		fmt.Printf("%v\n", x)
 		Unreachable() // assertion failure
@@ -86,7 +87,7 @@ func Nil(x any) {
 
 // ErrIs crashes if actual is NOT one of the specified targets.
 // Must provide at least one target. All targets must not be nil.
-func ErrIs(actual error, targets ...error) {
+func AssertErrIs(actual error, targets ...error) {
 	Assert(len(targets) > 0)
 
 	confirmed := false
@@ -102,7 +103,7 @@ func ErrIs(actual error, targets ...error) {
 
 // ErrIsNot crashes if actual is one of the specified targets.
 // Must provide at least one target. All targets must not be nil.
-func ErrIsNot(actual error, targets ...error) {
+func AssertErrIsNot(actual error, targets ...error) {
 	Assert(len(targets) > 0)
 
 	for _, t := range targets {
@@ -124,7 +125,7 @@ func XAssert(fn func() bool) {
 	}
 }
 
-func XNil(fn func() any) {
+func XAssertNil(fn func() any) {
 	x := fn()
 	if x != nil {
 		fmt.Printf("%v\n", x)
@@ -132,7 +133,7 @@ func XNil(fn func() any) {
 	}
 }
 
-func XErrIs(fn func() error, targets ...error) {
+func XAssertErrIs(fn func() error, targets ...error) {
 	Assert(len(targets) > 0)
 
 	actual := fn()
@@ -145,7 +146,7 @@ func XErrIs(fn func() error, targets ...error) {
 	Unreachable() // assertion failure
 }
 
-func XErrIsNot(fn func() error, targets ...error) {
+func XAssertErrIsNot(fn func() error, targets ...error) {
 	Assert(len(targets) > 0)
 
 	actual := fn()
