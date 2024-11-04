@@ -11,3 +11,5 @@ func XNil(_ func() any)                    {}
 func XErrIs(_ func() error, _ ...error)    {}
 func XErrIsNot(_ func() error, _ ...error) {}
 func Unreachable()                               {}
+func Maybe()                                     {}
+func Unimplemented(_ string)                     {}

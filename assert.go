@@ -58,6 +58,17 @@ func Unreachable() {
 	os.Exit(1)
 }
 
+// Signal that a condition is sometimes true or false. This will never crash the program.
+func Maybe(ok bool) {
+	Assert(ok || !ok)
+}
+
+// Signal that a scope is unimplemented and crash the progam.
+func Unimplemented(msg string) {
+	fmt.Printf("unimplemented: %s", msg)
+	Unreachable()
+}
+
 // Assert crashes if cond is false. If you need Assert(item == nil), use [Nil](item) instead.
 func Assert(cond bool) {
 	if !cond {
