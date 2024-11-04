@@ -90,11 +90,10 @@ func AssertNil(x any) {
 func AssertErrIs(actual error, targets ...error) {
 	Assert(len(targets) > 0)
 
-	confirmed := false
 	for _, t := range targets {
 		Assert(t != nil)
-		if errors.Is(actual, t) && !confirmed {
-			confirmed = true
+		if errors.Is(actual, t) {
+			return
 		}
 	}
 	fmt.Printf("%v\n", actual)
