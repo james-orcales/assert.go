@@ -108,6 +108,7 @@ func AssertErrIsNot(actual error, targets ...error) {
 	Assert(len(targets) > 0)
 
 	for _, t := range targets {
+		Assert(t != nil)
 		if errors.Is(actual, t) {
 			fmt.Printf("%v\n", actual)
 			Unreachable() // assertion failure
