@@ -70,14 +70,16 @@ func Unimplemented(msg string) {
 }
 
 // Assert crashes if cond is false. If you need Assert(item == nil), use [Nil](item) instead.
+// Do not defer assertions. There's no way to get the original line number of a deferred
+// function leading to confusing stacktraces.
 func Assert(cond bool) {
 	if !cond {
 		Unreachable() // assertion failure
 	}
 }
 
-// Nil crashes if x is NOT nil. Prefer this over [Assert](x == nil) for readability.
-func Nil(x any) {
+// AssertNil crashes if x is NOT nil and prints the non-null object.
+// Prefer this over [Assert](x == nil) for readability.
 func AssertNil(x any) {
 	if x != nil {
 		fmt.Printf("%v\n", x)
@@ -85,7 +87,7 @@ func AssertNil(x any) {
 	}
 }
 
-// ErrIs crashes if actual is NOT one of the specified targets.
+// AssertErrIs crashes if actual is NOT one of the specified targets.
 // Must provide at least one target. All targets must not be nil.
 func AssertErrIs(actual error, targets ...error) {
 	Assert(len(targets) > 0)
@@ -100,7 +102,7 @@ func AssertErrIs(actual error, targets ...error) {
 	Unreachable() // assertion failure
 }
 
-// ErrIsNot crashes if actual is one of the specified targets.
+// AssertErrIsNot crashes if actual is one of the specified targets.
 // Must provide at least one target. All targets must not be nil.
 func AssertErrIsNot(actual error, targets ...error) {
 	Assert(len(targets) > 0)
@@ -117,6 +119,12 @@ func AssertErrIsNot(actual error, targets ...error) {
 XAssert evaluates fn and crashes if it returns false.
 It is designed for use cases where you want to perform expensive validations that can be disabled
 in production builds using the `removeasserts` build tag.
+
+	expensiveFn := func() bool { ... }
+	// expensiveFn is still evaluated but boolean check is a noop under removeasserts
+	Assert(expensiveFn())
+	// expensiveFn itself will be a noop under removeasserts
+	XAssert(expensiveFn)
 */
 func XAssert(fn func() bool) {
 	if !fn() {
