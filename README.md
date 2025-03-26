@@ -4,7 +4,7 @@ package main
 import (
 	"errors"
 
-	. "github.com/amesaine/assert.go"
+	. "github.com/james-orcales/assert.go"
 )
 
 func main() {
@@ -27,13 +27,13 @@ func baz() error {
 
 /*
 where am i?
-/home/amesaine/personal/git/scratch/go/main.go:20
+/home/jamesorcales/personal/git/scratch/go/main.go:20
 	AssertNil(err)
 
-/home/amesaine/personal/git/scratch/go/main.go:15
+/home/jamesorcales/personal/git/scratch/go/main.go:15
 	bar()
 
-/home/amesaine/personal/git/scratch/go/main.go:11
+/home/jamesorcales/personal/git/scratch/go/main.go:11
 	foo()
 
 /usr/local/go/src/runtime/proc.go:272
