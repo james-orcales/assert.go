@@ -9,64 +9,19 @@ the `removeasserts` build tag. Dot import is the intended import style for this 
 package assert
 
 import (
-	"bufio"
 	"errors"
 	"fmt"
 	"os"
-	"runtime"
-	"strings"
 )
 
-// Unreachable crashes the program when evaluated with an exit code of 1 and writes a stacktrace.
+// Unreachable crashes with an exit code of 1 and writes a stacktrace.
 func Unreachable() {
-	callers := make([]uintptr, 50)
-
-	// Stacktrace starts at the caller of this function
-	const callerOfThisFunc = 2
-
-	count := runtime.Callers(callerOfThisFunc, callers)
-	frames := runtime.CallersFrames(callers[0:count])
-
-	for {
-		frame, ok := frames.Next()
-		if !ok {
-			break
-		}
-
-		fn := frame.Function
-		if frame.File != "" && frame.Line > 0 {
-			f, err := os.Open(frame.File)
-			if err == nil {
-				defer f.Close()
-
-				sc := bufio.NewScanner(f)
-
-				for range frame.Line {
-					_ = sc.Scan()
-				}
-				fn = strings.TrimSpace(sc.Text())
-			}
-		}
-
-		fmt.Printf(
-			"%v:%v\n\t%v\n\n",
-			frame.File,
-			frame.Line,
-			fn,
-		)
-	}
-	os.Exit(1)
+	PanicAlways("reached unreachable code")
 }
 
 // Signal that a condition is sometimes true or false. This will never crash the program.
 func Maybe(ok bool) {
 	Assert(ok || !ok)
-}
-
-// Signal that a scope is unimplemented and crash the progam.
-func Unimplemented(msg string) {
-	fmt.Printf("unimplemented: %s", msg)
-	Unreachable()
 }
 
 // Assert crashes if cond is false. If you need Assert(item == nil), use [Nil](item) instead.
@@ -82,7 +37,7 @@ func Assert(cond bool) {
 // Prefer this over [Assert](x == nil) for readability.
 func AssertNil(x any) {
 	if x != nil {
-		fmt.Printf("%v\n", x)
+		fmt.Fprintf(os.Stderr, "%v\n", x)
 		Unreachable() // assertion failure
 	}
 }
@@ -98,7 +53,7 @@ func AssertErrIs(actual error, targets ...error) {
 			return
 		}
 	}
-	fmt.Printf("%v\n", actual)
+	fmt.Fprintf(os.Stderr, "%v\n", actual)
 	Unreachable() // assertion failure
 }
 
@@ -110,7 +65,7 @@ func AssertErrIsNot(actual error, targets ...error) {
 	for _, t := range targets {
 		Assert(t != nil)
 		if errors.Is(actual, t) {
-			fmt.Printf("%v\n", actual)
+			fmt.Fprintf(os.Stderr, "%v\n", actual)
 			Unreachable() // assertion failure
 		}
 	}
@@ -136,7 +91,7 @@ func XAssert(fn func() bool) {
 func XAssertNil(fn func() any) {
 	x := fn()
 	if x != nil {
-		fmt.Printf("%v\n", x)
+		fmt.Fprintf(os.Stderr, "%v\n", x)
 		Unreachable() // assertion failure
 	}
 }
@@ -150,7 +105,7 @@ func XAssertErrIs(fn func() error, targets ...error) {
 			return
 		}
 	}
-	fmt.Printf("%v\n", actual)
+	fmt.Fprintf(os.Stderr, "%v\n", actual)
 	Unreachable() // assertion failure
 }
 
@@ -160,7 +115,7 @@ func XAssertErrIsNot(fn func() error, targets ...error) {
 	actual := fn()
 	for _, t := range targets {
 		if errors.Is(actual, t) {
-			fmt.Printf("%v\n", actual)
+			fmt.Fprintf(os.Stderr, "%v\n", actual)
 			Unreachable() // assertion failure
 		}
 	}

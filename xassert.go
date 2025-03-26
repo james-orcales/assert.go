@@ -1,4 +1,4 @@
-//go:build removeasserts
+//go:build removeasserts && !customasserts
 
 package assert
 
